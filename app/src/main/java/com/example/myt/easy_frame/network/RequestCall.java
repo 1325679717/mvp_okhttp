@@ -21,7 +21,7 @@ public class RequestCall extends BaseReuestCall{
 
     private final int ACTION = 10001;
 
-    public void requestJson(GetParamsUtill paramsUtill, final MyReceiveDataListener listener){
+    /*public void requestJson(GetParamsUtill paramsUtill, final MyReceiveDataListener listener){
         get(paramsUtill, new StringCallback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -37,5 +37,5 @@ public class RequestCall extends BaseReuestCall{
 
             }
         });
-    }
+    }*/
 }

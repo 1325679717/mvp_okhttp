@@ -9,8 +9,7 @@ import okhttp3.Response;
  * Created by myt on 2017/4/21.
  */
 public interface StringCallback<T> {
-    void onResponse(Call call
-            , Object o);
+    void onResponse(int code, T t);
 
-    void onFailure(Call call, IOException e);
+    void onFailure(Throwable e);
 }

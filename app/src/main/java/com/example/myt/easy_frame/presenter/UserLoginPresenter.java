@@ -1,12 +1,22 @@
 package com.example.myt.easy_frame.presenter;
 
+import android.util.Log;
+
 import com.example.myt.easy_frame.IuserLoginView;
 import com.example.myt.easy_frame.base.BasePresenter;
+import com.example.myt.easy_frame.bean.Channel;
 import com.example.myt.easy_frame.bean.User;
 import com.example.myt.easy_frame.constants.Contants;
 import com.example.myt.easy_frame.listener.MyReceiveDataListener;
+import com.example.myt.easy_frame.listener.StringCallback;
+import com.example.myt.easy_frame.network.BaseReuestCall;
 import com.example.myt.easy_frame.network.GetParamsUtill;
 import com.example.myt.easy_frame.network.RequestCall;
+
+import java.io.IOException;
+import java.util.List;
+
+import okhttp3.Call;
 
 /**
  * Created by myt on 2017/4/24.
@@ -14,7 +24,7 @@ import com.example.myt.easy_frame.network.RequestCall;
 public class UserLoginPresenter extends BasePresenter<IuserLoginView> {
 //    private IUserBiz iUserBiz;
 
-    RequestCall requestCall = new RequestCall();
+    BaseReuestCall requestCall = new BaseReuestCall();
 
     public UserLoginPresenter() {
         this.requestCall = new RequestCall();
@@ -25,9 +35,26 @@ public class UserLoginPresenter extends BasePresenter<IuserLoginView> {
         }
 
         GetParamsUtill getParamsUtill = new GetParamsUtill(Contants.strUrl);
-        getParamsUtill.add("name","wang");
-        getParamsUtill.add("password","000000");
-        requestCall.requestJson(getParamsUtill, new MyReceiveDataListener() {
+        getParamsUtill.add("q","可爱");
+        requestCall.get(getParamsUtill, new StringCallback<List<Channel>>() {
+
+
+            @Override
+            public void onResponse(int code, List<Channel> data) {
+                Log.i("UserLoginPresenter","data =" + data.size());
+
+            }
+
+            @Override
+            public void onFailure(Throwable e) {
+
+                if (isViewAttached()) {
+                    getView().showFailedError();
+                    getView().hideLoading();
+                }
+            }
+        });
+        /*, new MyReceiveDataListener() {
             @Override
             public void onReceive(int action, String code, String msg, Object data) {
 
@@ -48,21 +75,6 @@ public class UserLoginPresenter extends BasePresenter<IuserLoginView> {
                     getView().showFailedError();
                     getView().hideLoading();
                 }
-
-            }
-        });
-        /*iUserBiz.login(iuserLoginView.getUserName(), iuserLoginView.getPassword(), new OnLoginListener() {
-            @Override
-            public void loginSuccess(User user) {
-                iuserLoginView.toMainActivity(user);
-                iuserLoginView.hideLoading();
-
-            }
-
-            @Override
-            public void loginFailed() {
-                iuserLoginView.showFailedError();
-                iuserLoginView.hideLoading();
 
             }
         });*/

@@ -2,8 +2,11 @@ package com.example.myt.easy_frame.network;
 
 import android.net.Uri;
 
+import com.example.myt.easy_frame.bean.User;
+import com.example.myt.easy_frame.callback.CallBackImpl;
 import com.example.myt.easy_frame.listener.MyReceiveDataListener;
 import com.example.myt.easy_frame.listener.StringCallback;
+import com.example.myt.easy_frame.parser.JsonParser;
 import com.example.myt.easy_frame.utils.LogUtil;
 import com.example.myt.easy_frame.utils.Platform;
 
@@ -59,7 +62,7 @@ public class BaseReuestCall {
                 platform.execute(new Runnable() {
                     @Override
                     public void run() {
-                        callback.onFailure(call,e);
+//                        callback.onFailure(call,e);
                     }
                 });
             }
@@ -70,7 +73,7 @@ public class BaseReuestCall {
                 platform.execute(new Runnable() {
                     @Override
                     public void run() {
-                        callback.onResponse(call,data);
+//                        callback.onResponse(call,data);
                     }
                 });
             }
@@ -78,33 +81,21 @@ public class BaseReuestCall {
     }
 
 
-    public void get(GetParamsUtill paramsUtill,final StringCallback callback){
+    public <T> void get(GetParamsUtill paramsUtill,final StringCallback<T> callback){
 
         Map<String,String> map = getMap();
         Request.Builder builder = paramsUtill.getParams(map);
         final HttpUtils httpUtils = HttpUtils.getInstance();
-        final Platform platform = httpUtils.getmPlatform();
         builder.url(appendParams(paramsUtill.getHttpUrl(),map));
-        httpUtils.getOkHttpClient().newCall(builder.build()).enqueue(new Callback() {
+        httpUtils.getOkHttpClient().newCall(builder.build()).enqueue(new CallBackImpl<T>(new JsonParser<T>(){}) {
             @Override
-            public void onFailure(final Call call, final IOException e) {
-                platform.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onFailure(call,e);
-                    }
-                });
+            public void onSuccess(int code, T t) {
+                callback.onResponse(code,t);
             }
 
             @Override
-            public void onResponse(final Call call, final Response response) throws IOException {
-                final String data = response.body().string();
-                platform.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onResponse(call,data);
-                    }
-                });
+            public void onFailure(Throwable e) {
+                callback.onFailure(e);
             }
         });
     }
@@ -117,7 +108,6 @@ public class BaseReuestCall {
         Uri.Builder builder = Uri.parse(url).buildUpon();
         Set<String> keys = params.keySet();
         Iterator<String> iterator = keys.iterator();
-        System.out.println("Uri.Builder = "+builder.toString());
         while (iterator.hasNext())
         {
             String key = iterator.next();
